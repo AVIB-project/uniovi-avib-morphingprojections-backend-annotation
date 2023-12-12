@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,7 +33,7 @@ public class AnnotationController {
 	}
 
 	@RequestMapping(method = { RequestMethod.GET }, produces = "application/json", value = "/{annotationId}")	
-	public ResponseEntity<Annotation> findById(String annotationId) {
+	public ResponseEntity<Annotation> findById(@PathVariable String annotationId) {
 		Annotation annotation = annotationService.findById(annotationId);
 										
 		log.debug("findById: found annotation with annotationId: {}", annotation.getAnnotationId());
@@ -40,7 +42,7 @@ public class AnnotationController {
 	}
 	
 	@RequestMapping(method = { RequestMethod.POST }, produces = "application/json")	
-	public ResponseEntity<Annotation> save(Annotation annotation) {		
+	public ResponseEntity<Annotation> save(@RequestBody Annotation annotation) {		
 		Annotation annotationSaved = annotationService.save(annotation);
 
 		log.debug("save: create/update annotation with annotationId: {} from Manager Service", annotationSaved.getAnnotationId());
@@ -49,7 +51,7 @@ public class AnnotationController {
 	}
 
 	@RequestMapping(method = { RequestMethod.DELETE },value = "/{annotationId}")	
-	public void deleteById(String annotationId) {
+	public void deleteById(@PathVariable String annotationId) {
 		log.debug("deleteById: remove annotation with annotationId: {}", annotationId);
 			
 		annotationService.deleteById(annotationId);					
