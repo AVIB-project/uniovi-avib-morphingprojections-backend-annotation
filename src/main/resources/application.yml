@@ -1,0 +1,48 @@
+server:
+  port: 8081
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on-param
+    include-exception: true
+
+reflectoring:
+  trace: true
+      
+spring:
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      authentication-database: admin
+      database: configuration
+      username: root
+      password: password
+  
+logging:
+  level:
+    root: INFO
+    '[io.oferto]': DEBUG
+    '[org.springframework.data.mongodb.core.MongoTemplate]': DEBUG
+    
+---
+server:
+  error:
+    include-stacktrace: never 
+    include-exception: false
+
+reflectoring:
+  trace: false
+          
+spring:
+  config:
+    activate:
+      on-profile: docker
+  data:
+    mongodb:
+      host: avib-mongodb
+      port: 27017
+      authentication-database: admin
+      database: configuration
+      username: root
+      password: password        
