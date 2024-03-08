@@ -29,7 +29,7 @@ spring:
 #    database: configuration
 #    username: root
 #    password: password
-          
+            
 ---
 server:
   port: 8081
@@ -51,4 +51,4 @@ spring:
       authentication-database: admin
       database: configuration
       username: root
-      password: password        
+      password: password          

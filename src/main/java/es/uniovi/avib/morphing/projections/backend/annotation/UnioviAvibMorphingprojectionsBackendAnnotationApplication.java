@@ -9,5 +9,4 @@ public class UnioviAvibMorphingprojectionsBackendAnnotationApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(UnioviAvibMorphingprojectionsBackendAnnotationApplication.class, args);
 	}
-
 }

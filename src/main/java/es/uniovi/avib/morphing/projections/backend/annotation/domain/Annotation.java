@@ -1,8 +1,10 @@
 package es.uniovi.avib.morphing.projections.backend.annotation.domain;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -22,6 +24,10 @@ public class Annotation {
 	@NotNull(message = "Project Id may not be null")
 	@Field("projectId")
 	private String projectId;
+	
+	@NotNull(message = "Case Id may not be null")
+	@Field("case_id")
+	private ObjectId caseId;
 	
 	@NotNull(message = "Name may not be null")
 	@Field("name")
@@ -67,4 +73,18 @@ public class Annotation {
 	@NotNull(message = "Required may not be null")
 	@Field("required")
 	private boolean required = true;
+	
+	@NotNull(message = "Creation Date may not be null")
+	@Field("creation_date")
+	private Date creationDate;	
+	
+	@NotNull(message = "Creation by may not be null")
+	@Field("creation_by")
+	private String creationBy;	
+	
+	@Field("updated_date")
+	private Date updatedDate;	
+	
+	@Field("updated_by")
+	private String updatedBy;		
 }
