@@ -21,10 +21,6 @@ public class Annotation {
 	@Id	
 	private String annotationId;
 	
-	@NotNull(message = "Project Id may not be null")
-	@Field("projectId")
-	private String projectId;
-	
 	@NotNull(message = "Case Id may not be null")
 	@Field("case_id")
 	private ObjectId caseId;
@@ -48,16 +44,25 @@ public class Annotation {
 	@Field("group")
 	private String group;
 	
+	@Field("space")
+	private String space;
+	
+	@Field("precalculated")
+	private boolean precalculated = false;
+	
+	@Field("projected_by_annotation")
+	private String projectedByAnnotation;
+	
+	@Field("projection")
+	private String projection;
+	
 	@NotNull(message = "Encoding may not be null")
 	@Field("encoding")
 	private String encoding;
 	
 	@Field("encoding_name")
-	private String encoding_name;
-	
-	@Field("encoding_label")
-	private Map<String, String> encoding_label;
-	
+	private String encodingName;	
+		
 	@NotNull(message = "Type may not be null")
 	@Field("type")
 	private String type;
@@ -66,10 +71,6 @@ public class Annotation {
 	@Field("colorized")
 	private boolean colorized = false;
 	
-	@NotNull(message = "Mandatory may not be null")
-	@Field("mandatory")
-	private boolean mandatory = true;		
-
 	@NotNull(message = "Required may not be null")
 	@Field("required")
 	private boolean required = true;

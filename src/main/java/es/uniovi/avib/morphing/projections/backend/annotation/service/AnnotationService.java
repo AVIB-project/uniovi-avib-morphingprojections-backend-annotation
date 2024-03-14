@@ -34,6 +34,28 @@ public class AnnotationService {
 	private final AnnotationRepository annotationRepository;
 	private final MongoTemplate mongoTemplate;
 	
+	@SuppressWarnings("serial")
+	private Annotation createEncodingAnnotation(Annotation annotation, String projection) {
+		Annotation annotationEncoding = new Annotation();
+		
+		annotationEncoding.setCaseId(annotation.getCaseId());
+		annotationEncoding.setGroup("encoding");
+		annotationEncoding.setType("numeric");
+		annotationEncoding.setName(projection + "_" + annotation.getName());
+		annotationEncoding.setLabel(new HashMap<String, String>() {{
+		    put("us", projection.toUpperCase() + " " + annotation.getName());
+		    put("es", projection.toUpperCase() + " " + annotation.getName());
+		}});
+		annotationEncoding.setDescription(projection.toUpperCase() + " " + annotation.getName() + " encoding projection");
+		annotationEncoding.setEncodingName(annotation.getName());
+		annotationEncoding.setColorized(false);
+		annotationEncoding.setRequired(true);
+		annotationEncoding.setCreationBy("Administrator");
+		annotationEncoding.setCreationDate(new Date());
+		
+		return annotationEncoding;
+	}
+	
 	public List<Annotation> findAll() {		
 		log.debug("findAll: found all annotations");
 		
@@ -41,10 +63,23 @@ public class AnnotationService {
 	}
 
 	public List<Annotation> findAllByCaseId(String caseId) {
-		log.debug("finfByCaseId: find annotations by case id: {}", caseId);
+		log.debug("findAllByCaseId: find annotations by case id: {}", caseId);
 		
 		AggregationOperation aggregationOperation = Aggregation
 				.match(Criteria.where("case_id").is(new ObjectId(caseId)));
+			
+		Aggregation aggregation = Aggregation.newAggregation(aggregationOperation);
+		
+		List<Annotation> annotations = mongoTemplate.aggregate(aggregation, "annotation", Annotation.class).getMappedResults();					
+									
+		return annotations;
+	}
+	
+	public List<Annotation> findAllByEncodingName(String encodingName) {
+		log.debug("findAllByEncodingName: find annotations by encoding name: {}", encodingName);
+		
+		AggregationOperation aggregationOperation = Aggregation
+				.match(Criteria.where("encoding_name").is(encodingName));
 			
 		Aggregation aggregation = Aggregation.newAggregation(aggregationOperation);
 		
@@ -87,6 +122,33 @@ public class AnnotationService {
 		annotationRepository.deleteAll(annotations);
 	}
 	
+	public Annotation addAnnotation(Annotation annotation) {
+		// save X encoding annotation		
+		save(createEncodingAnnotation(annotation, "x"));
+		
+		// create Y encoding annotations						
+		save(createEncodingAnnotation(annotation, "y"));		
+		
+		// save principal annotation
+		return save(annotation);		
+	}
+	
+	public void removeAnnotationById(String annotationId ) {
+		// get principal annoatation
+		Annotation principalAnnotation = findById(annotationId);
+		
+		// get encoding annotations for principal
+		List<Annotation> encodedAnnotations = findAllByEncodingName(principalAnnotation.getName());
+		
+		// remove principal
+		deleteById(principalAnnotation.getAnnotationId());
+		
+		// remove encoded annotations
+		for (Annotation encodedAnnotation : encodedAnnotations) {
+			deleteById(encodedAnnotation.getAnnotationId());	
+		}
+	}
+	
 	public List<Annotation> uploadFiles(String organizationId, String projectId, String caseId, MultipartFile[] files) {
 		log.info("update files from service");
 						
@@ -100,14 +162,17 @@ public class AnnotationService {
 	        CsvMapper csvMapper = new CsvMapper();
 	        CsvSchema csvSchema = CsvSchema.builder()
 	        		.setSkipFirstDataRow(true)
+	        		.addColumn("group", CsvSchema.ColumnType.STRING)	        		
 	        		.addColumn("name", CsvSchema.ColumnType.STRING)
+	        		.addColumn("label", CsvSchema.ColumnType.STRING)	        		
 	        		.addColumn("description", CsvSchema.ColumnType.STRING)
-	        		.addColumn("group", CsvSchema.ColumnType.STRING)
+	        		.addColumn("space", CsvSchema.ColumnType.STRING)
+	        		.addColumn("precalculated", CsvSchema.ColumnType.BOOLEAN)
+	        		.addColumn("projected_by_annotation", CsvSchema.ColumnType.STRING)
+	        		.addColumn("projection", CsvSchema.ColumnType.STRING)
 	        		.addColumn("type", CsvSchema.ColumnType.STRING)
 	        		.addColumn("colorized", CsvSchema.ColumnType.BOOLEAN)
-	        		.addColumn("mandatory", CsvSchema.ColumnType.BOOLEAN)
 	        		.addColumn("required", CsvSchema.ColumnType.BOOLEAN)
-	        		.addColumn("label", CsvSchema.ColumnType.STRING)
 	        		.addColumn("values", CsvSchema.ColumnType.STRING)	        		  
 	        		.build();
 	        
@@ -118,18 +183,30 @@ public class AnnotationService {
 	        	while (mappingIterator.hasNextValue()) {
 	        		AnnotationCsvDto annotationCsvDto = mappingIterator.nextValue();
 	        		
-	        		// create a new annotation for each csv row configuration
+	        		// create a new annotation for each csv row configuration	        		
 	        		Annotation annotation = new Annotation();
 	        		annotation.setCaseId(new ObjectId(caseId));
+	        		annotation.setGroup(annotationCsvDto.getGroup());
 	        		annotation.setName(annotationCsvDto.getName());
 	        		annotation.setDescription(annotationCsvDto.getDescription());
-	        		annotation.setGroup(annotationCsvDto.getGroup());
+	        		if (!annotationCsvDto.getSpace().isEmpty())
+	        			annotation.setSpace(annotationCsvDto.getSpace());
+	        		annotation.setPrecalculated(annotationCsvDto.isPrecalculated());
+	        		if (!annotationCsvDto.getProjected_by_annotation().isEmpty())
+	        			annotation.setProjectedByAnnotation(annotationCsvDto.getProjected_by_annotation());
 	        		annotation.setType(annotationCsvDto.getType());
 	        		annotation.setColorized(annotationCsvDto.isColorized());
-	        		annotation.setMandatory(annotationCsvDto.isMandatory());
 	        		annotation.setRequired(annotationCsvDto.isRequired());
 	        		annotation.setCreationBy("Administrator");
 	        		annotation.setCreationDate(new Date());
+	        		
+	        		if (annotation.getGroup().equals("projection")) {
+	        			annotation.setEncoding("supervised");	        			
+	        		}
+	        		
+	        		if (!annotation.isPrecalculated()) {
+	        			annotation.setProjection("tsne");
+	        		}
 	        		
 	        		// parse labels for all annotations
 	        		annotation.setLabel(new HashMap<String, String>());
@@ -138,6 +215,9 @@ public class AnnotationService {
 	        				
 	        			annotation.getLabel().put(labelValues[0], labelValues[1]);
 	        		}
+	        		
+	        		// insert all new annotations
+	        		annotations.add(annotation);
 	        		
 	        		// parse values for enumeration annotations
 	        		if (annotationCsvDto.getValues() != "") {
@@ -148,17 +228,20 @@ public class AnnotationService {
 		        		}
 	        		}
 	        		
-	        		// remove all old annotations
-	        		deleteAllByCaseId(caseId);
-	        		
-	        		// insert all new annotations
-	        		annotations.add(annotation);
+	        		// add X/Y encoding annotations for projection annotation
+	        		if (annotation.getGroup().equals("projection")) {
+	        			annotations.add(createEncodingAnnotation(annotation, "x"));
+	        			annotations.add(createEncodingAnnotation(annotation, "y"));
+	        		}	        	
 	        	}	        		            
 	        } catch (IOException e) {
 				e.printStackTrace();								
 			}		       
 		});	
-				
+		
+		// remove all old annotations
+		deleteAllByCaseId(caseId);
+		
 		return saveAll(annotations);
 	}
 }

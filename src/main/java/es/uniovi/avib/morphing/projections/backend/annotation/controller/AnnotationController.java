@@ -64,11 +64,27 @@ public class AnnotationController {
 		return new ResponseEntity<Annotation>(annotationSaved, HttpStatus.OK);			
 	}
 
-	@RequestMapping(method = { RequestMethod.DELETE },value = "/{annotationId}")	
+	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{annotationId}")	
 	public void deleteById(@PathVariable String annotationId) {
 		log.debug("deleteById: remove annotation with annotationId: {}", annotationId);
 			
 		annotationService.deleteById(annotationId);					
+	}
+	
+	@RequestMapping(method = { RequestMethod.POST }, produces = "application/json", value = "/addAnnotation")	
+	public ResponseEntity<Annotation> addAnnotation(@RequestBody Annotation annotation) {		
+		Annotation annotationSaved = annotationService.addAnnotation(annotation);
+
+		log.debug("addAnnotation: annotation with");
+			
+		return new ResponseEntity<Annotation>(annotationSaved, HttpStatus.OK);			
+	}
+	
+	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{annotationId}/removeAnnotationById")	
+	public void removeAnnotationById(@PathVariable String annotationId) {		
+		annotationService.removeAnnotationById(annotationId);
+
+		log.debug("addAnnotation: annotation with");		
 	}
 	
     @RequestMapping(method = { RequestMethod.POST }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE}, produces = "application/json", value = "/organizations/{organizationId}/projects/{projectId}/cases/{caseId}")
