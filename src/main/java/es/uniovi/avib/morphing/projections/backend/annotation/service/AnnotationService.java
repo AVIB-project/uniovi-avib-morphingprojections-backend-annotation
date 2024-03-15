@@ -123,11 +123,16 @@ public class AnnotationService {
 	}
 	
 	public Annotation addAnnotation(Annotation annotation) {
-		// save X encoding annotation		
-		save(createEncodingAnnotation(annotation, "x"));
+		annotation.setCreationBy("Administrator");
+		annotation.setCreationDate(new Date());
 		
-		// create Y encoding annotations						
-		save(createEncodingAnnotation(annotation, "y"));		
+		if (annotation.getGroup().equals("projection")) {
+			// save X encoding annotation		
+			save(createEncodingAnnotation(annotation, "x"));
+			
+			// create Y encoding annotations						
+			save(createEncodingAnnotation(annotation, "y"));		
+		}
 		
 		// save principal annotation
 		return save(annotation);		
