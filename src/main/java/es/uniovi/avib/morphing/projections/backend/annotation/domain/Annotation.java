@@ -47,16 +47,19 @@ public class Annotation {
 	@Field("space")
 	private String space;
 	
+	@NotNull(message = "Precalculated date may not be null")
 	@Field("precalculated")
 	private boolean precalculated = false;
 	
 	@Field("projected_by_annotation")
 	private String projectedByAnnotation;
+
+	@Field("projected_by_annotation_value")
+	private String projectedByAnnotationValue;
 	
 	@Field("projection")
 	private String projection;
 	
-	@NotNull(message = "Encoding may not be null")
 	@Field("encoding")
 	private String encoding;
 	
@@ -75,7 +78,7 @@ public class Annotation {
 	@Field("required")
 	private boolean required = true;
 	
-	@NotNull(message = "Creation Date may not be null")
+	@NotNull(message = "Creation date may not be null")
 	@Field("creation_date")
 	private Date creationDate;	
 	

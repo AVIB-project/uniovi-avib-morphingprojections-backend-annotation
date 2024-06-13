@@ -88,6 +88,19 @@ public class AnnotationService {
 		return annotations;
 	}
 	
+	public Annotation findByName(String name) {
+		log.debug("findByName: find annotation by encoding name: {}", name);
+		
+		AggregationOperation aggregationOperation = Aggregation
+				.match(Criteria.where("name").is(name));
+			
+		Aggregation aggregation = Aggregation.newAggregation(aggregationOperation);
+		
+		List<Annotation> annotations = mongoTemplate.aggregate(aggregation, "annotation", Annotation.class).getMappedResults();					
+									
+		return annotations.get(0);
+	}
+	
 	public Annotation findById(String annotationId) {
 		log.debug("findById: found annotation with id: {}", annotationId);
 		
@@ -122,20 +135,24 @@ public class AnnotationService {
 		annotationRepository.deleteAll(annotations);
 	}
 	
-	public Annotation addAnnotation(Annotation annotation) {
+	public List<Annotation> addAnnotation(Annotation annotation) {
+		List<Annotation> annotationsSaved = new ArrayList<Annotation>();
+		
 		annotation.setCreationBy("Administrator");
 		annotation.setCreationDate(new Date());
 		
 		if (annotation.getGroup().equals("projection")) {
 			// save X encoding annotation		
-			save(createEncodingAnnotation(annotation, "x"));
+			annotationsSaved.add(save(createEncodingAnnotation(annotation, "x")));
 			
 			// create Y encoding annotations						
-			save(createEncodingAnnotation(annotation, "y"));		
+			annotationsSaved.add(save(createEncodingAnnotation(annotation, "y")));		
 		}
-		
+
 		// save principal annotation
-		return save(annotation);		
+		annotationsSaved.add(save(annotation));
+
+		return annotationsSaved;		
 	}
 	
 	public void removeAnnotationById(String annotationId ) {

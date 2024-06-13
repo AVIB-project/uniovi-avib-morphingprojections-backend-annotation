@@ -72,12 +72,12 @@ public class AnnotationController {
 	}
 	
 	@RequestMapping(method = { RequestMethod.POST }, produces = "application/json", value = "/addAnnotation")	
-	public ResponseEntity<Annotation> addAnnotation(@RequestBody Annotation annotation) {		
-		Annotation annotationSaved = annotationService.addAnnotation(annotation);
+	public ResponseEntity<List<Annotation>> addAnnotation(@RequestBody Annotation annotation) {		
+		List<Annotation> annotationsSaved = annotationService.addAnnotation(annotation);
 
 		log.debug("addAnnotation: annotation with");
 			
-		return new ResponseEntity<Annotation>(annotationSaved, HttpStatus.OK);			
+		return new ResponseEntity<List<Annotation>>(annotationsSaved, HttpStatus.OK);			
 	}
 	
 	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{annotationId}/removeAnnotationById")	
