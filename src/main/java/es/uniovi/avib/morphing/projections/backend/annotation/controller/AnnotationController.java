@@ -88,14 +88,7 @@ public class AnnotationController {
 			
 		return new ResponseEntity<List<Annotation>>(annotationsSaved, HttpStatus.OK);			
 	}
-	
-	@RequestMapping(method = { RequestMethod.DELETE }, value = "/{annotationId}/removeAnnotationById")	
-	public void removeAnnotationById(@PathVariable String annotationId) {		
-		annotationService.removeAnnotationById(annotationId);
-
-		log.debug("addAnnotation: annotation with");		
-	}
-	
+		
     @RequestMapping(method = { RequestMethod.POST }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE}, produces = "application/json", value = "/organizations/{organizationId}/projects/{projectId}/cases/{caseId}")
     public ResponseEntity<List<Annotation>> uploadFiles(
     		@PathVariable String organizationId,

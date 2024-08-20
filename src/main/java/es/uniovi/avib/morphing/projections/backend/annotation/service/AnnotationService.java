@@ -72,7 +72,7 @@ public class AnnotationService {
 						.andOperator(Criteria.where("case_id").is(new ObjectId(caseId))));
 		
 		AggregationOperation aggregationProjectOperation = Aggregation
-				.project("_id", "name", "description", "group", "encoding_name", "type", "colorized", "required");
+				.project("_id", "name", "description", "group", "type", "space", "encoding", "projected_by_annotation", "projected_by_annotation_value", "precalculated", "colorized", "required");
 							    
 		Aggregation aggregation = Aggregation.newAggregation(aggregationMatchOperation, aggregationProjectOperation);
 		
@@ -141,7 +141,19 @@ public class AnnotationService {
 	public void deleteById(String annotationId) {
 		log.debug("deleteById: delete annotation with id: {}", annotationId);
 		
-		annotationRepository.deleteById(annotationId);
+		// get principal annoatation
+		Annotation principalAnnotation = findById(annotationId);
+		
+		// get encoding annotations for principal
+		List<Annotation> encodedAnnotations = findAllByEncodingName(principalAnnotation.getName());
+		
+		// remove principal
+		deleteById(principalAnnotation.getAnnotationId());
+		
+		// remove encoded annotations
+		for (Annotation encodedAnnotation : encodedAnnotations) {
+			deleteById(encodedAnnotation.getAnnotationId());	
+		}
 	}
 	
 	public void deleteAllByCaseId(String caseId) {
@@ -173,23 +185,7 @@ public class AnnotationService {
 
 		return annotationsSaved;		
 	}
-	
-	public void removeAnnotationById(String annotationId ) {
-		// get principal annoatation
-		Annotation principalAnnotation = findById(annotationId);
 		
-		// get encoding annotations for principal
-		List<Annotation> encodedAnnotations = findAllByEncodingName(principalAnnotation.getName());
-		
-		// remove principal
-		deleteById(principalAnnotation.getAnnotationId());
-		
-		// remove encoded annotations
-		for (Annotation encodedAnnotation : encodedAnnotations) {
-			deleteById(encodedAnnotation.getAnnotationId());	
-		}
-	}
-	
 	public List<Annotation> uploadFiles(String organizationId, String projectId, String caseId, MultipartFile[] files) {
 		log.info("update files from service");
 						
