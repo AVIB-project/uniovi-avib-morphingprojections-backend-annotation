@@ -17,6 +17,10 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
@@ -24,8 +28,6 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import es.uniovi.avib.morphing.projections.backend.annotation.repository.AnnotationRepository;
 import es.uniovi.avib.morphing.projections.backend.annotation.domain.Annotation;
 import es.uniovi.avib.morphing.projections.backend.annotation.dto.AnnotationCsvDto;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -56,12 +58,29 @@ public class AnnotationService {
 		return annotationEncoding;
 	}
 	
-	public List<Annotation> findAll() {		
+	public List<Annotation> findAll() {
 		log.debug("findAll: found all annotations");
 		
-		return (List<Annotation>) annotationRepository.findAll();		
+		return annotationRepository.findAll();		
 	}
 
+	public List<Annotation> findAllAvailableByCase(String caseId) {
+		log.debug("findAllAvailable: find annotations");
+				
+		AggregationOperation aggregationMatchOperation = Aggregation
+				.match(Criteria.where("group").ne("encoding")
+						.andOperator(Criteria.where("case_id").is(new ObjectId(caseId))));
+		
+		AggregationOperation aggregationProjectOperation = Aggregation
+				.project("_id", "name", "description", "group", "encoding_name", "type", "colorized", "required");
+							    
+		Aggregation aggregation = Aggregation.newAggregation(aggregationMatchOperation, aggregationProjectOperation);
+		
+		List<Annotation> annotations = mongoTemplate.aggregate(aggregation, "annotation", Annotation.class).getMappedResults();					
+									
+		return annotations;
+	}
+	
 	public List<Annotation> findAllByCaseId(String caseId) {
 		log.debug("findAllByCaseId: find annotations by case id: {}", caseId);
 		
@@ -88,6 +107,12 @@ public class AnnotationService {
 		return annotations;
 	}
 	
+	public Annotation findById(String annotationId) {
+		log.debug("findById: found annotation with id: {}", annotationId);
+		
+		return annotationRepository.findById(annotationId).orElseThrow(() -> new RuntimeException("Annotation not found"));	
+	}
+	
 	public Annotation findByName(String name) {
 		log.debug("findByName: find annotation by encoding name: {}", name);
 		
@@ -100,13 +125,7 @@ public class AnnotationService {
 									
 		return annotations.get(0);
 	}
-	
-	public Annotation findById(String annotationId) {
-		log.debug("findById: found annotation with id: {}", annotationId);
 		
-		return annotationRepository.findById(annotationId).orElseThrow(() -> new RuntimeException("Annotation not found"));	
-	}
-	
 	public Annotation save(Annotation annotation) {
 		log.debug("save: save annotation");
 		
