@@ -72,7 +72,7 @@ public class AnnotationService {
 						.andOperator(Criteria.where("case_id").is(new ObjectId(caseId))));
 		
 		AggregationOperation aggregationProjectOperation = Aggregation
-				.project("_id", "name", "description", "group", "type", "space", "encoding", "projected_by_annotation", "projected_by_annotation_value", "precalculated", "colorized", "required");
+				.project("_id", "name", "description", "group", "type", "space", "encoding", "label", "projected_by_annotation", "projected_by_annotation_value", "precalculated", "colorized", "required");
 							    
 		Aggregation aggregation = Aggregation.newAggregation(aggregationMatchOperation, aggregationProjectOperation);
 		
