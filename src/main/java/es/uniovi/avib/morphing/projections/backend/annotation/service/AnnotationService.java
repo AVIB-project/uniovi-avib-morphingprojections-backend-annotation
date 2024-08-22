@@ -3,7 +3,6 @@ package es.uniovi.avib.morphing.projections.backend.annotation.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -52,8 +51,6 @@ public class AnnotationService {
 		annotationEncoding.setEncodingName(annotation.getName());
 		annotationEncoding.setColorized(false);
 		annotationEncoding.setRequired(true);
-		annotationEncoding.setCreationBy("Administrator");
-		annotationEncoding.setCreationDate(new Date());
 		
 		return annotationEncoding;
 	}
@@ -127,9 +124,6 @@ public class AnnotationService {
 	}
 		
 	public Annotation save(Annotation annotation) {		
-		annotation.setCreationBy("Administrator");
-		annotation.setCreationDate(new Date());
-		
 		if (annotation.getGroup().equals("projection")) {
 			// save X encoding annotation		
 			annotationRepository.save(createEncodingAnnotation(annotation, "x"));
@@ -210,7 +204,7 @@ public class AnnotationService {
 	        		
 	        		// create a new annotation for each csv row configuration	        		
 	        		Annotation annotation = new Annotation();
-	        		annotation.setCaseId(new ObjectId(caseId));
+	        		annotation.setCaseId(caseId);
 	        		annotation.setGroup(annotationCsvDto.getGroup());
 	        		annotation.setName(annotationCsvDto.getName());
 	        		annotation.setDescription(annotationCsvDto.getDescription());
@@ -222,8 +216,6 @@ public class AnnotationService {
 	        		annotation.setType(annotationCsvDto.getType());
 	        		annotation.setColorized(annotationCsvDto.isColorized());
 	        		annotation.setRequired(annotationCsvDto.isRequired());
-	        		annotation.setCreationBy("Administrator");
-	        		annotation.setCreationDate(new Date());
 	        		
 	        		if (annotation.getGroup().equals("projection")) {
 	        			annotation.setEncoding("supervised");	        			
