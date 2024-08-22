@@ -79,7 +79,14 @@ public class AnnotationController {
 			
 		annotationService.deleteById(annotationId);					
 	}
+
+	@RequestMapping(method = { RequestMethod.DELETE }, value = "/cases/{caseId}")	
+	public void deleteAllByCaseId(@PathVariable String caseId) {
+		log.debug("deleteAllByCaseId: remove all annotation with caseId: {}", caseId);
 			
+		annotationService.deleteAllByCaseId(caseId);					
+	}
+	
     @RequestMapping(method = { RequestMethod.POST }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE}, produces = "application/json", value = "/organizations/{organizationId}/projects/{projectId}/cases/{caseId}")
     public ResponseEntity<List<Annotation>> uploadFiles(
     		@PathVariable String organizationId,
