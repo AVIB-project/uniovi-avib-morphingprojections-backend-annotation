@@ -126,9 +126,19 @@ public class AnnotationService {
 		return annotations.get(0);
 	}
 		
-	public Annotation save(Annotation annotation) {
-		log.debug("save: save annotation");
+	public Annotation save(Annotation annotation) {		
+		annotation.setCreationBy("Administrator");
+		annotation.setCreationDate(new Date());
 		
+		if (annotation.getGroup().equals("projection")) {
+			// save X encoding annotation		
+			annotationRepository.save(createEncodingAnnotation(annotation, "x"));
+			
+			// create Y encoding annotations						
+			annotationRepository.save(createEncodingAnnotation(annotation, "y"));		
+		}
+
+		// save principal annotation
 		return annotationRepository.save(annotation);
 	}
 	
@@ -141,19 +151,17 @@ public class AnnotationService {
 	public void deleteById(String annotationId) {
 		log.debug("deleteById: delete annotation with id: {}", annotationId);
 		
-		// get principal annoatation
-		Annotation principalAnnotation = findById(annotationId);
+		// get annotation
+		Annotation annotation = findById(annotationId);
 		
-		// get encoding annotations for principal
-		List<Annotation> encodedAnnotations = findAllByEncodingName(principalAnnotation.getName());
+		// get encoding annotations
+		List<Annotation> encodedAnnotations = findAllByEncodingName(annotation.getName());
 		
-		// remove principal
-		deleteById(principalAnnotation.getAnnotationId());
+		// remove annotation
+		annotationRepository.delete(annotation);
 		
-		// remove encoded annotations
-		for (Annotation encodedAnnotation : encodedAnnotations) {
-			deleteById(encodedAnnotation.getAnnotationId());	
-		}
+		// remove encoding annotations
+		annotationRepository.deleteAll(encodedAnnotations);
 	}
 	
 	public void deleteAllByCaseId(String caseId) {
@@ -164,26 +172,6 @@ public class AnnotationService {
 		
 		// remove all annotations
 		annotationRepository.deleteAll(annotations);
-	}
-	
-	public List<Annotation> addAnnotation(Annotation annotation) {
-		List<Annotation> annotationsSaved = new ArrayList<Annotation>();
-		
-		annotation.setCreationBy("Administrator");
-		annotation.setCreationDate(new Date());
-		
-		if (annotation.getGroup().equals("projection")) {
-			// save X encoding annotation		
-			annotationsSaved.add(save(createEncodingAnnotation(annotation, "x")));
-			
-			// create Y encoding annotations						
-			annotationsSaved.add(save(createEncodingAnnotation(annotation, "y")));		
-		}
-
-		// save principal annotation
-		annotationsSaved.add(save(annotation));
-
-		return annotationsSaved;		
 	}
 		
 	public List<Annotation> uploadFiles(String organizationId, String projectId, String caseId, MultipartFile[] files) {

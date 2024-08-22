@@ -79,16 +79,7 @@ public class AnnotationController {
 			
 		annotationService.deleteById(annotationId);					
 	}
-	
-	@RequestMapping(method = { RequestMethod.POST }, produces = "application/json", value = "/addAnnotation")	
-	public ResponseEntity<List<Annotation>> addAnnotation(@RequestBody Annotation annotation) {		
-		List<Annotation> annotationsSaved = annotationService.addAnnotation(annotation);
-
-		log.debug("addAnnotation: annotation with");
 			
-		return new ResponseEntity<List<Annotation>>(annotationsSaved, HttpStatus.OK);			
-	}
-		
     @RequestMapping(method = { RequestMethod.POST }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE}, produces = "application/json", value = "/organizations/{organizationId}/projects/{projectId}/cases/{caseId}")
     public ResponseEntity<List<Annotation>> uploadFiles(
     		@PathVariable String organizationId,
