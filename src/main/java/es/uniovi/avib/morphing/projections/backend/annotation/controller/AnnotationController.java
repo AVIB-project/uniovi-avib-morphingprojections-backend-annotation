@@ -36,15 +36,6 @@ public class AnnotationController {
 		
 		return new ResponseEntity<List<Annotation>>(annotations, HttpStatus.OK);			
 	}
-
-	@RequestMapping(method = { RequestMethod.GET }, produces = "application/json", value = "/cases/{caseId}/available")
-	public ResponseEntity<List<Annotation>> findAllAvailableByOrganization(@PathVariable String caseId) {
-		List<Annotation> annotations = annotationService.findAllAvailableByCase(caseId);
-					
-		log.debug("findAll: found available {} annotations", annotations.size());
-		
-		return new ResponseEntity<List<Annotation>>(annotations, HttpStatus.OK);			
-	}
 	
 	@RequestMapping(method = { RequestMethod.GET }, produces = "application/json", value = "/cases/{caseId}")	
 	public ResponseEntity<List<Annotation>> findAllByCaseId(@PathVariable String caseId) {
@@ -53,6 +44,15 @@ public class AnnotationController {
 		log.debug("findAllByCaseId: found {} annotations", annotations.size());
 			
 		return new ResponseEntity<List<Annotation>>(annotations, HttpStatus.OK);		
+	}
+	
+	@RequestMapping(method = { RequestMethod.GET }, produces = "application/json", value = "/cases/{caseId}/available")
+	public ResponseEntity<List<Annotation>> findAllAvailableByCaseId(@PathVariable String caseId) {
+		List<Annotation> annotations = annotationService.findAllAvailableByCaseId(caseId);
+					
+		log.debug("findAll: found available {} annotations", annotations.size());
+		
+		return new ResponseEntity<List<Annotation>>(annotations, HttpStatus.OK);			
 	}
 	
 	@RequestMapping(method = { RequestMethod.GET }, produces = "application/json", value = "/{annotationId}")	

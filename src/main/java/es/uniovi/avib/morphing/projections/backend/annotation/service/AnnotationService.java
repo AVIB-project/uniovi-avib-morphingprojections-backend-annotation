@@ -60,23 +60,6 @@ public class AnnotationService {
 		
 		return annotationRepository.findAll();		
 	}
-
-	public List<Annotation> findAllAvailableByCase(String caseId) {
-		log.debug("findAllAvailable: find annotations");
-				
-		AggregationOperation aggregationMatchOperation = Aggregation
-				.match(Criteria.where("group").ne("encoding")
-						.andOperator(Criteria.where("case_id").is(new ObjectId(caseId))));
-		
-		AggregationOperation aggregationProjectOperation = Aggregation
-				.project("_id", "name", "description", "group", "type", "values", "space", "encoding", "label", "projected_by_annotation", "projected_by_annotation_value", "precalculated", "colorized", "required");
-							    
-		Aggregation aggregation = Aggregation.newAggregation(aggregationMatchOperation, aggregationProjectOperation);
-		
-		List<Annotation> annotations = mongoTemplate.aggregate(aggregation, "annotation", Annotation.class).getMappedResults();					
-									
-		return annotations;
-	}
 	
 	public List<Annotation> findAllByCaseId(String caseId) {
 		log.debug("findAllByCaseId: find annotations by case id: {}", caseId);
@@ -85,6 +68,23 @@ public class AnnotationService {
 				.match(Criteria.where("case_id").is(new ObjectId(caseId)));
 			
 		Aggregation aggregation = Aggregation.newAggregation(aggregationOperation);
+		
+		List<Annotation> annotations = mongoTemplate.aggregate(aggregation, "annotation", Annotation.class).getMappedResults();					
+									
+		return annotations;
+	}
+	
+	public List<Annotation> findAllAvailableByCaseId(String caseId) {
+		log.debug("findAllAvailable: find annotations");
+				
+		AggregationOperation aggregationMatchOperation = Aggregation
+				.match(Criteria.where("group").ne("encoding")
+						.andOperator(Criteria.where("case_id").is(new ObjectId(caseId))));
+		
+		AggregationOperation aggregationProjectOperation = Aggregation
+				.project("_id", "name", "description", "group", "type", "values", "space", "encoding", "encoding_name", "label", "projection", "projected_by_annotation", "projected_by_annotation_value", "precalculated", "colorized", "required");
+							    
+		Aggregation aggregation = Aggregation.newAggregation(aggregationMatchOperation, aggregationProjectOperation);
 		
 		List<Annotation> annotations = mongoTemplate.aggregate(aggregation, "annotation", Annotation.class).getMappedResults();					
 									
