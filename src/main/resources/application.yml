@@ -16,19 +16,6 @@ spring:
       database: configuration
       username: root
       password: q8SFbdesFv
-
-# using ingress
-#spring:
-#  elasticsearch:
-#    host: minikube.io
-#    port: 443
-#    pathPrefix: /mongodb/
-#    verifyHostnames: false
-#    validateCertificates: false
-#    authentication-database: admin    
-#    database: configuration
-#    username: root
-#    password: password
             
 ---
 server:
@@ -46,9 +33,9 @@ spring:
       on-profile: avib
   data:
     mongodb:
-      host: avib-mongodb
+      host: gsdpi-mongodb
       port: 27017
       authentication-database: admin
       database: configuration
       username: root
-      password: password          
+      password: 46cfdg1oXL          
