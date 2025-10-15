@@ -1,11 +1,5 @@
 server:
   port: 8081
-
-management:
-  endpoint:
-    health:
-      probes:
-        enabled: true
       
 spring:
   data:
@@ -14,28 +8,22 @@ spring:
       port: 27017            
       authentication-database: admin
       database: configuration
-      username: root
-      password: q8SFbdesFv
+      username: admin
+      password: password
             
 ---
 server:
   port: 8081
-
-management:
-  endpoint:
-    health:     
-      probes:
-        enabled: true
-          
+ 
 spring:
   config:
     activate:
       on-profile: avib
   data:
     mongodb:
-      host: gsdpi-mongodb
+      host: avib-mongodb
       port: 27017
       authentication-database: admin
       database: configuration
-      username: root
-      password: 46cfdg1oXL          
+      username: admin
+      password: password          
